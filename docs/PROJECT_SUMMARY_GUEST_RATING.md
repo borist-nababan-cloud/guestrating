@@ -15,6 +15,8 @@ Aplikasi **Zen Guest Rating** (`frontend\guest-rating`, repositori baru `https:/
 
 ## 3. Perbaikan Bug Legacy & Peningkatan UX
 - Mengatasi seluruh 12 error TypeScript & 14 error ESLint legacy, termasuk bug fatal `ReactNode` pada `tr_details` dan `room_details`, pemanggilan method non-eksisten `scanner.getCamera()`, *stale closure* kamera yang menyebabkan stream kamera tetap menyala di latar belakang, serta URL Firebase lama (`zenmember-76409`).
+- **Google OAuth Autofill & Sinkronisasi Member (`20261123183000`):** Ketika tamu menonaktifkan *"Kirim secara Anonim"*, tersedia tombol **"Isi Otomatis dengan Google"** (PKCE + penyimpanan draft otomatis di `sessionStorage` + pembersihan sesi lokal `scope: 'local'` setelah submit untuk keamanan perangkat bersama). RPC `submit_guest_rating()` mengisi `web_guest_rating_submissions.user_uid` dari `auth.uid()` terverifikasi JWT dan otomatis mendaftarkan/menyelaraskan tamu ke `public.web_members`.
+- **CTA "Beri Ulasan" ke Website Statis:** Layar selesai (`StatusScreen`) menampilkan tombol **"Beri Ulasan"** untuk semua skor yang mengarah ke `${VITE_WEBSITE_URL}/#ulasan` (`home.zenfamilyspa.id` di Staging, `zenfamilyspa.com` di Production), dan tautan footer *"Kunjungi Website Resmi"* pada `StatusScreen` dihapus agar tampilan ringkas.
 - Menambahkan dukungan **Bilingual `[ ID | EN ]`**, desain **Zen Luxury** selaras `frontend\website`, chip pilihan cepat adaptif, fallback input manual kode struk, proteksi *double-submit*, serta `ErrorBoundary` dan timeout `AbortController` 15 detik.
 
 ## 4. Status Deployment

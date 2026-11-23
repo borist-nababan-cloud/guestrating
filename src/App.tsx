@@ -1,15 +1,19 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import type { User } from '@supabase/supabase-js';
 import { EntryCard } from './components/EntryCard';
 import { Header } from './components/Header';
 import { QrScannerModal } from './components/QrScannerModal';
 import { RatingForm } from './components/RatingForm';
 import { StatusScreen } from './components/StatusScreen';
+import { clearOAuthDraft, loadOAuthDraft, saveOAuthDraft } from './lib/draftStorage';
 import { TEXTS } from './lib/i18n';
+import { supabase } from './lib/supabaseClient';
 import { extractRatingCode } from './lib/validation';
 import { fetchGuestRatingSession } from './services/ratingService';
 import type {
   GuestRatingSession,
   Language,
+  RatingFormValues,
   SubmitRatingSuccess,
 } from './types/rating';
 
@@ -53,6 +57,12 @@ export function App() {
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [scannerOpen, setScannerOpen] = useState(false);
 
+  // Google OAuth & draft restoration state
+  const [authUser, setAuthUser] = useState<User | null>(null);
+  const [authLoading, setAuthLoading] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
+  const [restoredDraft, setRestoredDraft] = useState<RatingFormValues | null>(null);
+
   const requestIdRef = useRef(0);
   const websiteUrl = resolveWebsiteUrl();
   const t = TEXTS[lang];
@@ -65,6 +75,36 @@ export function App() {
       // Ignore storage access restrictions
     }
   };
+
+  // Subscribe to Supabase Auth session for Google OAuth autofill
+  useEffect(() => {
+    let active = true;
+
+    supabase.auth
+      .getSession()
+      .then(({ data }) => {
+        if (active) {
+          setAuthUser(data.session?.user ?? null);
+        }
+      })
+      .catch(() => {
+        // Ignore silent session lookup error; guest can still fill manually
+      });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+      if (active) {
+        setAuthUser(nextSession?.user ?? null);
+        setAuthLoading(false);
+      }
+    });
+
+    return () => {
+      active = false;
+      subscription.unsubscribe();
+    };
+  }, []);
 
   const loadSession = useCallback(async (code: string, updateHistory: boolean) => {
     const requestId = ++requestIdRef.current;
@@ -100,32 +140,97 @@ export function App() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const rawCode = params.get('ratingcode');
-    if (!rawCode) {
-      setViewState('entry');
+
+    if (rawCode) {
+      const extracted = extractRatingCode(rawCode);
+      if (!extracted) {
+        setViewState('not_found');
+        return;
+      }
+      void loadSession(extracted, false);
       return;
     }
 
-    const extracted = extractRatingCode(rawCode);
-    if (!extracted) {
-      setViewState('not_found');
+    // Check if returning from Google OAuth redirect with a saved form draft
+    const savedDraft = loadOAuthDraft();
+    if (savedDraft) {
+      clearOAuthDraft();
+      setRestoredDraft(savedDraft.values);
+      // Avoid overwriting ?code= while Supabase PKCE exchanges the OAuth code
+      const isPkceCallback = params.has('code');
+      void loadSession(savedDraft.ratingcode, !isPkceCallback);
+      if (isPkceCallback) {
+        void supabase.auth.getSession().finally(() => {
+          const cleanUrl = `${window.location.pathname}?ratingcode=${encodeURIComponent(savedDraft.ratingcode)}`;
+          window.history.replaceState({}, '', cleanUrl);
+        });
+      }
       return;
     }
 
-    void loadSession(extracted, false);
+    setViewState('entry');
   }, [loadSession]);
+
+  const handleGoogleSignIn = useCallback(
+    async (draftValues: RatingFormValues) => {
+      if (!activeCode) return;
+      setAuthLoading(true);
+      setAuthError(null);
+      saveOAuthDraft(activeCode, draftValues);
+
+      try {
+        const redirectUrl =
+          window.location.origin.replace(/\/$/, '') +
+          (window.location.pathname || '/');
+
+        const { error } = await supabase.auth.signInWithOAuth({
+          provider: 'google',
+          options: {
+            redirectTo: redirectUrl,
+          },
+        });
+
+        if (error) {
+          clearOAuthDraft();
+          setAuthError(TEXTS[lang].googleError);
+          setAuthLoading(false);
+        }
+      } catch {
+        clearOAuthDraft();
+        setAuthError(TEXTS[lang].googleError);
+        setAuthLoading(false);
+      }
+    },
+    [activeCode, lang]
+  );
+
+  const handleGoogleSignOut = useCallback(async () => {
+    setAuthError(null);
+    try {
+      await supabase.auth.signOut({ scope: 'local' });
+    } catch {
+      // Ignore sign-out errors
+    }
+    setAuthUser(null);
+  }, []);
 
   const handleResetToEntry = () => {
     requestIdRef.current += 1;
+    clearOAuthDraft();
     window.history.pushState({}, '', window.location.pathname);
     setActiveCode(null);
     setSession(null);
     setSubmitResult(null);
+    setRestoredDraft(null);
     setFetchError(null);
+    setAuthError(null);
     setViewState('entry');
   };
 
   const handleScanSuccess = useCallback(
     (code: string) => {
+      clearOAuthDraft();
+      setRestoredDraft(null);
       setScannerOpen(false);
       void loadSession(code, true);
     },
@@ -149,7 +254,11 @@ export function App() {
             lang={lang}
             websiteUrl={websiteUrl}
             onOpenScanner={() => setScannerOpen(true)}
-            onSelectCode={(code) => void loadSession(code, true)}
+            onSelectCode={(code) => {
+              clearOAuthDraft();
+              setRestoredDraft(null);
+              void loadSession(code, true);
+            }}
           />
         )}
 
@@ -158,13 +267,34 @@ export function App() {
             key={session.ratingcode}
             session={session}
             lang={lang}
+            authUser={authUser}
+            authLoading={authLoading}
+            authError={authError}
+            initialDraft={restoredDraft}
+            onGoogleSignIn={(draft) => void handleGoogleSignIn(draft)}
+            onGoogleSignOut={() => void handleGoogleSignOut()}
             onRescan={() => setScannerOpen(true)}
             onSubmitted={(result) => {
+              clearOAuthDraft();
+              setRestoredDraft(null);
               setSubmitResult(result);
               setViewState('submitted');
+              // Clear local OAuth token on this origin for shared-device safety
+              if (authUser) {
+                void supabase.auth.signOut({ scope: 'local' });
+                setAuthUser(null);
+              }
             }}
-            onAlreadySubmitted={() => setViewState('already_submitted')}
-            onNotFound={() => setViewState('not_found')}
+            onAlreadySubmitted={() => {
+              clearOAuthDraft();
+              setRestoredDraft(null);
+              setViewState('already_submitted');
+            }}
+            onNotFound={() => {
+              clearOAuthDraft();
+              setRestoredDraft(null);
+              setViewState('not_found');
+            }}
           />
         )}
 
@@ -182,7 +312,6 @@ export function App() {
               lang={lang}
               websiteUrl={websiteUrl}
               avgRate={submitResult?.avg_rate}
-              outlet={session?.outlet}
               hasActiveCode={Boolean(activeCode)}
               onRetry={() => {
                 if (activeCode) void loadSession(activeCode, false);

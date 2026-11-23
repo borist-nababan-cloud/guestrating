@@ -40,6 +40,12 @@ export const TEXTS = {
     charCountSuffix: 'karakter',
     anonTitle: 'Kirim secara Anonim',
     anonDesc: 'Identitas Anda dirahasiakan. Nonaktifkan jika bersedia dihubungi oleh tim layanan tamu kami.',
+    googleAutofillBtn: 'Isi Otomatis dengan Google',
+    googleLoadingBtn: 'Menghubungkan Google...',
+    googleOrManual: 'Atau isi nama & email secara manual',
+    googleConnectedBadge: 'Terhubung via Google',
+    googleSignOutBtn: 'Ganti / Keluar Akun',
+    googleError: 'Gagal menghubungkan akun Google. Anda tetap dapat mengisi nama & email secara manual.',
     nameLabel: 'Nama Lengkap',
     namePlaceholder: 'Masukkan nama Anda',
     emailLabel: 'Alamat Email',
@@ -85,9 +91,9 @@ export const TEXTS = {
     statusSubmittedDesc:
       'Apresiasi dan masukan Anda telah kami terima untuk terus menjaga kualitas sentuhan relaksasi Zen Family Spa.',
     statusAvgLabel: 'Rata-Rata Penilaian',
-    statusHighScoreTip:
-      'Senang mengetahui Anda menikmati perawatan kami! Sudi berbagi ulasan singkat juga di Google Maps cabang?',
-    statusOpenMaps: 'Beri Ulasan di Google Maps',
+    statusReviewCtaTip:
+      'Bagikan juga kisah relaksasi Anda di halaman ulasan website resmi Zen Family Spa.',
+    statusWriteReviewBtn: 'Beri Ulasan',
     statusAlreadyTitle: 'Penilaian Sudah Tercatat',
     statusAlreadyDesc:
       'Terima kasih! Kode kunjungan ini sudah pernah mengirimkan penilaian sebelumnya sehingga tidak dapat dikirim ulang.',
@@ -139,6 +145,12 @@ export const TEXTS = {
     charCountSuffix: 'chars',
     anonTitle: 'Submit Anonymously',
     anonDesc: 'Your identity remains private. Turn off if you would like our guest care team to follow up.',
+    googleAutofillBtn: 'Autofill with Google',
+    googleLoadingBtn: 'Connecting to Google...',
+    googleOrManual: 'Or enter your name & email manually',
+    googleConnectedBadge: 'Signed in with Google',
+    googleSignOutBtn: 'Switch / Sign Out',
+    googleError: 'Unable to sign in with Google. You can still enter your name & email manually.',
     nameLabel: 'Full Name',
     namePlaceholder: 'Enter your name',
     emailLabel: 'Email Address',
@@ -184,9 +196,9 @@ export const TEXTS = {
     statusSubmittedDesc:
       'Your rating has been safely recorded to help us uphold Zen Family Spa’s healing standards.',
     statusAvgLabel: 'Overall Rating',
-    statusHighScoreTip:
-      'We are delighted you enjoyed your visit! Would you also share a quick review on Google Maps for this branch?',
-    statusOpenMaps: 'Review on Google Maps',
+    statusReviewCtaTip:
+      'Share your visit story on the official Zen Family Spa reviews page.',
+    statusWriteReviewBtn: 'Write a Review',
     statusAlreadyTitle: 'Rating Already Submitted',
     statusAlreadyDesc:
       'Thank you! Feedback for this receipt code has already been recorded and cannot be submitted twice.',

@@ -22,13 +22,18 @@ Pastikan keempat variabel di bawah diaktifkan untuk **Build-Time & Runtime** (*"
 | :--- | :--- | :--- |
 | `VITE_SUPABASE_URL` | `https://okchlapizmhoueeeldrh.supabase.co` | `https://ihdlwogvjfgawgsalgng.supabase.co` |
 | `VITE_SUPABASE_ANON_KEY` | *Anon key proyek Staging `okchlapizmhoueeeldrh`* | *Anon key proyek Production `ihdlwogvjfgawgsalgng`* |
-| `VITE_WEBSITE_URL` | `https://zenfamilyspa.com` | `https://zenfamilyspa.com` |
+| `VITE_WEBSITE_URL` | `https://home.zenfamilyspa.id` *(Staging Website Statis)* | `https://zenfamilyspa.com` *(Production Website Statis)* |
 | `VITE_APP_MODE` | `STAG` *(menampilkan lencana `MODE LATIHAN`)* | `PROD` *(lencana latihan otomatis tersembunyi)* |
 
+> **Prasyarat Google OAuth (Isi Otomatis Nama & Email):**
+> Pastikan **`https://guestrate.zenfamilyspa.id/**`** sudah terdaftar pada **Supabase Studio $\rightarrow$ Authentication $\rightarrow$ URL Configuration $\rightarrow$ Redirect URLs** (baik di Staging maupun Production).
+
 > **Cara Berpindah dari Staging ke Production (Zero Code Change):**
-> 1. Pastikan migrasi `backend\supabase\supabase\migrations\20261123140000_create_web_guest_rating_submissions_and_rpcs.sql` sudah diterapkan ke **Production Supabase** (`ihdlwogvjfgawgsalgng`).
-> 2. Di Coolify, ubah 3 nilai ENV di atas ke nilai **Production**.
-> 3. Klik **Redeploy** (pastikan opsi build cache dibersihkan atau biarkan Coolify membangun ulang image karena `ARG VITE_*` berubah).
+> 1. Pastikan kedua migrasi berikut sudah diterapkan ke **Production Supabase** (`ihdlwogvjfgawgsalgng`):
+>    - `20261123140000_create_web_guest_rating_submissions_and_rpcs.sql`
+>    - `20261123183000_update_submit_guest_rating_auth_uid_and_web_members.sql`
+> 2. Di Coolify, ubah nilai ENV di atas ke nilai **Production** (`VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_WEBSITE_URL`, `VITE_APP_MODE=PROD`).
+> 3. Klik **Redeploy** (pastikan build cache dibersihkan karena `ARG VITE_*` berubah).
 
 ---
 

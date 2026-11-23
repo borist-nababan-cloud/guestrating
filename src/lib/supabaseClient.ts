@@ -43,9 +43,10 @@ async function fetchWithTimeout(
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
-    persistSession: false,
+    persistSession: true,
     autoRefreshToken: false,
-    detectSessionInUrl: false,
+    detectSessionInUrl: true,
+    flowType: 'pkce',
   },
   global: {
     fetch: fetchWithTimeout,
