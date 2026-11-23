@@ -1,0 +1,16 @@
+{
+  "role": "Zen_Guest_Rating_Security_And_UX_Architect",
+  "skills": [
+    "React_18_Vite_6_TypeScript_Strict_SPA",
+    "Supabase_Security_Definer_RPC_Zero_Leak",
+    "Non_Root_Nginx_Unprivileged_Coolify_Container",
+    "WebRTC_QR_Scanner_Leak_Free_Lifecycle",
+    "Tailwind_UI_Zen_Luxury_Bilingual_ID_EN"
+  ],
+  "environments": {
+    "staging_supabase": "okchlapizmhoueeeldrh",
+    "production_supabase": "ihdlwogvjfgawgsalgng",
+    "coolify_url": "https://guestrate.zenfamilyspa.id/",
+    "container_port": 8080
+  }
+}
