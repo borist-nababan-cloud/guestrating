@@ -235,9 +235,6 @@ export const RatingForm: React.FC<RatingFormProps> = ({
   const therapistTags = getQuickTags(lang, 'therapist', values.tr_rate);
   const roomTags = getQuickTags(lang, 'room', values.room_rate);
 
-  const therapistInitial = session.therapist?.name
-    ? session.therapist.name.trim().charAt(0).toUpperCase()
-    : 'T';
   const deptLabel = getDeptLabel(session.therapist?.departemen);
 
   return (
@@ -365,19 +362,30 @@ export const RatingForm: React.FC<RatingFormProps> = ({
             {session.therapist.photo_url && !photoFailed ? (
               <img
                 src={session.therapist.photo_url}
-                alt={session.therapist.name}
+                alt={t.sectionTherapistTitle}
                 onError={() => setPhotoFailed(true)}
                 className="w-14 h-14 rounded-full object-cover border-2 border-zen-matcha/40 shrink-0"
               />
             ) : (
-              <div className="w-14 h-14 rounded-full bg-zen-matcha text-white flex items-center justify-center font-serif text-xl font-bold shrink-0">
-                {therapistInitial}
+              <div className="w-14 h-14 rounded-full bg-zen-matcha/15 border border-zen-matcha/30 text-zen-moss flex items-center justify-center shrink-0">
+                <UserIcon className="w-6 h-6" />
               </div>
             )}
-            <div className="min-w-0">
-              <p className="font-serif text-base sm:text-lg font-semibold text-zen-charcoal truncate">
-                {session.therapist.name}
-              </p>
+            <div className="min-w-0 flex-1 space-y-1">
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs sm:text-sm">
+                <span className="text-zen-muted">
+                  {t.therapistCodeLabel}:{' '}
+                  <strong className="font-mono font-semibold text-zen-charcoal">
+                    {session.therapist.kodekaryawan || '-'}
+                  </strong>
+                </span>
+                <span className="text-zen-muted">
+                  {t.therapistIdLabel}:{' '}
+                  <strong className="font-mono font-semibold text-zen-charcoal">
+                    {session.therapist.idkaryawan || '-'}
+                  </strong>
+                </span>
+              </div>
               {deptLabel && (
                 <p className="text-xs font-medium text-zen-matcha truncate">{deptLabel}</p>
               )}

@@ -29,9 +29,10 @@ Pastikan keempat variabel di bawah diaktifkan untuk **Build-Time & Runtime** (*"
 > Pastikan **`https://guestrate.zenfamilyspa.id/**`** sudah terdaftar pada **Supabase Studio $\rightarrow$ Authentication $\rightarrow$ URL Configuration $\rightarrow$ Redirect URLs** (baik di Staging maupun Production).
 
 > **Cara Berpindah dari Staging ke Production (Zero Code Change):**
-> 1. Pastikan kedua migrasi berikut sudah diterapkan ke **Production Supabase** (`ihdlwogvjfgawgsalgng`):
+> 1. Pastikan ketiga migrasi berikut sudah diterapkan ke **Production Supabase** (`ihdlwogvjfgawgsalgng`):
 >    - `20261123140000_create_web_guest_rating_submissions_and_rpcs.sql`
 >    - `20261123183000_update_submit_guest_rating_auth_uid_and_web_members.sql`
+>    - `20261123190000_hide_therapist_name_in_guest_rating_session.sql`
 > 2. Di Coolify, ubah nilai ENV di atas ke nilai **Production** (`VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_WEBSITE_URL`, `VITE_APP_MODE=PROD`).
 > 3. Klik **Redeploy** (pastikan build cache dibersihkan karena `ARG VITE_*` berubah).
 

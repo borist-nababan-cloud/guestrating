@@ -17,7 +17,8 @@ export interface RatingOutletInfo {
 }
 
 export interface RatingTherapistInfo {
-  name: string;
+  kodekaryawan: string | null;
+  idkaryawan?: string | null;
   departemen?: string | null;
   photo_url?: string | null;
 }
